@@ -1,1 +1,0 @@
- /Users/keepitfoxy/Documents/DSW\ Informatyka/Semestr\ III/Programowanie\ aplikacji\ mobilnych/Projekt\ semestralny/.dart_tool/flutter_build/f7245ce617c31c8e650b5de10baa07e2/native_assets.yaml: 

@@ -11,3 +11,5 @@ build/
 .flutter-plugins
 .flutter-plugins-dependencies
 .idea/
+*.apk
+*.lock
