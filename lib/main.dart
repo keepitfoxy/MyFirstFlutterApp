@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
-      home: const HomeView(), // Początkowy ekran aplikacji
+      home: const SplashScreen(), // Początkowy ekran aplikacji
     );
   }
 }

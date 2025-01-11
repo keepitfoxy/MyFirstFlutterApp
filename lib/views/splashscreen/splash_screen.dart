@@ -1,22 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:lisiecka_aplikacje_mobilne/views/login/login_view.dart';
 import 'package:lisiecka_aplikacje_mobilne/utils/my_colors.dart';
-import 'package:lisiecka_aplikacje_mobilne/utils/my_images.dart';
+import 'package:lisiecka_aplikacje_mobilne/views/home/home_view.dart';
+import 'package:lisiecka_aplikacje_mobilne/views/login/login_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
+  Future<void> _navigateBasedOnLoginStatus(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    // Naviguj do odpowiedniego ekranu
+    if (isLoggedIn) {
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeView()),
+      );
+    } else {
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginView()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const LoginView(),
-        ),
-      );
+      _navigateBasedOnLoginStatus(context);
     });
-
 
     return Scaffold(
       backgroundColor: MyColors.whiteColor, // Tło białe
@@ -24,8 +37,6 @@ class SplashScreen extends StatelessWidget {
         children: [
           // tło
           _buildBackground(),
-
-
           Center(
             child: Image.asset(
               'assets/images/logo_bigger.png',

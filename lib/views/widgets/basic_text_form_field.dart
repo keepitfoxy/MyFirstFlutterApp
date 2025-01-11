@@ -1,47 +1,3 @@
-/* import 'package:flutter/material.dart';
-
-/* class BasicTextFormField extends StatelessWidget {
-  final String initialValue;
-
-  const BasicTextFormField({super.key, this.initialValue = ''});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      initialValue: initialValue,
-    );
-  }
-}
-*/
-class BasicTextFormField extends StatelessWidget {
-  final String hintText;
-  final IconData icon;
-  final bool obscureText;
-
-  const BasicTextFormField(required String hintText, {
-    Key? key,
-    required this.hintText,
-    required this.icon,
-    this.obscureText = false, required icon,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        hintText: hintText,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-    );
-  }
-}
-
-*/
-
 import 'package:flutter/material.dart';
 import 'package:lisiecka_aplikacje_mobilne/utils/my_colors.dart';
 
@@ -50,6 +6,7 @@ class BasicTextFormField extends StatelessWidget {
   final Widget? iconWidget;
   final bool obscureText;
   final Widget? suffixIcon;
+  final TextEditingController? controller; // Added controller
 
   const BasicTextFormField({
     Key? key,
@@ -57,6 +14,7 @@ class BasicTextFormField extends StatelessWidget {
     this.iconWidget,
     this.obscureText = false,
     this.suffixIcon,
+    this.controller, // Initialize controller
   }) : super(key: key);
 
   @override
@@ -65,6 +23,7 @@ class BasicTextFormField extends StatelessWidget {
       width: 390,
       height: 50,
       child: TextFormField(
+        controller: controller, // Attach controller here
         obscureText: obscureText,
         decoration: _buildDecoration(),
       ),

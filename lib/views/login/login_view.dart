@@ -4,7 +4,14 @@ import 'package:lisiecka_aplikacje_mobilne/utils/my_images.dart';
 import 'package:lisiecka_aplikacje_mobilne/views/register/register_view.dart';
 import 'package:lisiecka_aplikacje_mobilne/views/widgets/basic_text_form_field.dart';
 import 'package:lisiecka_aplikacje_mobilne/views/widgets/confirmation_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lisiecka_aplikacje_mobilne/views/home/home_view.dart'; // Import ekranu głównego
 
+Future<void> login(String username) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('isLoggedIn', true);
+  await prefs.setString('userId', username); // Zapisujemy nazwę użytkownika jako identyfikator
+}
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -14,7 +21,16 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  bool _obscurePassword = true;
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePassword = true; // Dodanie zmiennej do zarządzania widocznością hasła
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +53,7 @@ class _LoginViewState extends State<LoginView> {
                 BasicTextFormField(
                   hintText: 'Email or User Name',
                   iconWidget: Image.asset(MyImages.user, height: 24, width: 24),
+                  controller: _usernameController, // Dodanie kontrolera
                 ),
 
                 const SizedBox(height: 40),
@@ -48,11 +65,11 @@ class _LoginViewState extends State<LoginView> {
                     Icons.lock_outline,
                     color: MyColors.purpleColor,
                   ),
-                  obscureText: _obscurePassword,
+                  obscureText: _obscurePassword, // Zarządzanie widocznością hasła
                   suffixIcon: GestureDetector(
                     onTap: () {
                       setState(() {
-                        _obscurePassword = !_obscurePassword;
+                        _obscurePassword = !_obscurePassword; // Przełączanie widoczności
                       });
                     },
                     child: Icon(
@@ -63,22 +80,7 @@ class _LoginViewState extends State<LoginView> {
                       color: MyColors.purpleColor,
                     ),
                   ),
-                ),
-
-                const SizedBox(height: 40),
-
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Forget Password ?',
-                      style: TextStyle(
-                        color: MyColors.purpleColor,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
+                  controller: _passwordController, // Dodanie kontrolera
                 ),
 
                 const SizedBox(height: 40),
@@ -86,8 +88,28 @@ class _LoginViewState extends State<LoginView> {
                 // Sign In button
                 ConfirmationButton(
                   text: 'Sign in',
-                  onPressed: () {
-                    // Navigate to Home or perform login
+                  onPressed: () async {
+                    final username = _usernameController.text.trim();
+                    final password = _passwordController.text.trim();
+
+                    if (username.isEmpty || password.isEmpty) {
+                      // Proste sprawdzenie pól
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please fill in all fields'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Zapis użytkownika i przejście do HomeView
+                    await login(username);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomeView(), // Na ekran główny
+                      ),
+                    );
                   },
                 ),
 
@@ -127,17 +149,18 @@ class _LoginViewState extends State<LoginView> {
       ),
     );
   }
-}
 
-Widget get _signInText{
-  return Align(
-    alignment: Alignment.centerLeft,
-    child: Text('Sign in',
-      style: TextStyle(
-        fontSize: 30,
-        fontWeight: FontWeight.w700,
-        color: MyColors.purpleColor,
+  Widget get _signInText {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        'Sign in',
+        style: TextStyle(
+          fontSize: 30,
+          fontWeight: FontWeight.w700,
+          color: MyColors.purpleColor,
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
