@@ -13,3 +13,13 @@ build/
 .idea/
 *.apk
 *.lock
+# macOS system files
+.DS_Store
+
+# Flutter files
+.metadata
+android/gradle/.DS_Store
+ios/Podfile
+macos/Podfile
+
+.DS_Store

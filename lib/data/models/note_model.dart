@@ -3,14 +3,14 @@ class Note {
   final String title;
   final String content;
   final String date;
-  final String userId; // Dodano userId
+  final int userId; // userId jako int
 
   Note({
     this.id,
     required this.title,
     required this.content,
     required this.date,
-    required this.userId, // Dodano w konstruktorze
+    required this.userId,
   });
 
   Map<String, dynamic> toMap() {
@@ -19,7 +19,7 @@ class Note {
       'title': title,
       'content': content,
       'date': date,
-      'userId': userId, // Dodano do mapowania
+      'userId': userId,
     };
   }
 
@@ -29,7 +29,7 @@ class Note {
       title: map['title'] as String,
       content: map['content'] as String,
       date: map['date'] as String,
-      userId: map['userId'] as String, // Dodano do fabryki
+      userId: map['userId'] as int,
     );
   }
 
@@ -38,7 +38,7 @@ class Note {
     String? title,
     String? content,
     String? date,
-    String? userId,
+    int? userId, // userId jako int
   }) {
     return Note(
       id: id ?? this.id,
