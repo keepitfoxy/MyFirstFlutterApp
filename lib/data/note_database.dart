@@ -116,4 +116,14 @@ class NoteDatabase {
       'userId': userId,
     });
   }
+  Future<void> deleteNoteById(int id) async {
+    final db = await instance.database;
+
+    await db.delete(
+      'notes',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
 }
