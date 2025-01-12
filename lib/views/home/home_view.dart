@@ -31,7 +31,7 @@ class _HomeViewState extends State<HomeView> {
   Future<void> _loadCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      userId = prefs.getInt('userId');
+      userId = prefs.getInt('userId'); // Pobranie ID użytkownika jako int
     });
   }
 
@@ -44,11 +44,100 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
-  Future<void> _addNote() async {
+  Future<void> _addNote(String title, String content) async {
+    if (userId == null) return;
+
+    final note = Note(
+      title: title,
+      content: content,
+      date: DateTime.now().toLocal().toString().split('.')[0], // Data utworzenia w formacie "yyyy-MM-dd HH:mm:ss"
+      userId: userId!,
+    );
+    await NoteDatabase.instance.addNote(note);
+    await _loadNotes();
+  }
+
+  Future<void> _editNote(Note note, String newTitle, String newContent) async {
+    final updatedNote = note.copyWith(
+      title: newTitle,
+      content: newContent,
+      date: DateTime.now().toLocal().toString().split('.')[0], // Aktualizacja daty modyfikacji
+    );
+    await NoteDatabase.instance.updateNote(updatedNote);
+    await _loadNotes();
+  }
+
+  Future<void> _deleteNote(Note note) async {
+    await NoteDatabase.instance.deleteNoteById(note.id!);
+    await _loadNotes();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Notes'),
+        backgroundColor: MyColors.purpleColor,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _logout,
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: notes.isEmpty
+            ? const Center(child: Text('No notes available. Add one!'))
+            : ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: notes.length,
+          itemBuilder: (context, index) {
+            final note = notes[index];
+            return ListTile(
+              title: Text(note.title),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(note.content),
+                  Text(
+                    'Last Modified: ${note.date}',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    onPressed: () => _showEditNoteDialog(context, note),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _deleteNoteConfirmation(context, note),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showAddNoteDialog(context);
+        },
+        backgroundColor: MyColors.purpleColor,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showAddNoteDialog(BuildContext context) {
     final titleController = TextEditingController();
     final contentController = TextEditingController();
 
-    await showDialog(
+    showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -69,23 +158,18 @@ class _HomeViewState extends State<HomeView> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+              },
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () async {
-                if (userId != null) {
-                  final newNote = Note(
-                    title: titleController.text,
-                    content: contentController.text,
-                    date: DateTime.now().toIso8601String(),
-                    userId: userId!,
-                  );
-
-                  await NoteDatabase.instance.addNote(newNote);
-                  Navigator.pop(context);
-                  await _loadNotes();
-                }
+              onPressed: () {
+                _addNote(
+                  titleController.text,
+                  contentController.text,
+                );
+                Navigator.pop(context);
               },
               child: const Text('Save'),
             ),
@@ -95,11 +179,11 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Future<void> _editNote(Note note) async {
+  void _showEditNoteDialog(BuildContext context, Note note) {
     final titleController = TextEditingController(text: note.title);
     final contentController = TextEditingController(text: note.content);
 
-    await showDialog(
+    showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -120,19 +204,19 @@ class _HomeViewState extends State<HomeView> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+              },
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () async {
-                final updatedNote = note.copyWith(
-                  title: titleController.text,
-                  content: contentController.text,
+              onPressed: () {
+                _editNote(
+                  note,
+                  titleController.text,
+                  contentController.text,
                 );
-
-                await NoteDatabase.instance.updateNote(updatedNote);
                 Navigator.pop(context);
-                await _loadNotes();
               },
               child: const Text('Save'),
             ),
@@ -142,8 +226,8 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Future<void> _deleteNoteConfirmation(Note note) async {
-    await showDialog(
+  void _deleteNoteConfirmation(BuildContext context, Note note) {
+    showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -151,14 +235,15 @@ class _HomeViewState extends State<HomeView> {
           content: const Text('Are you sure you want to delete this note?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+              },
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () async {
-                await NoteDatabase.instance.deleteNoteById(note.id!);
+              onPressed: () {
+                _deleteNote(note);
                 Navigator.pop(context);
-                await _loadNotes();
               },
               child: const Text('Delete'),
             ),
@@ -173,55 +258,5 @@ class _HomeViewState extends State<HomeView> {
     await prefs.remove('isLoggedIn');
     await prefs.remove('userId');
     Navigator.pushReplacementNamed(context, '/login');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your Notes'),
-        backgroundColor: MyColors.purpleColor,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: notes.isEmpty
-            ? const Center(child: Text('No notes available. Add one!'))
-            : ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: notes.length,
-          itemBuilder: (context, index) {
-            final note = notes[index];
-            return ListTile(
-              title: Text(note.title),
-              subtitle: Text(note.content),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blue),
-                    onPressed: () => _editNote(note),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _deleteNoteConfirmation(note),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addNote,
-        backgroundColor: MyColors.purpleColor,
-        child: const Icon(Icons.add),
-      ),
-    );
   }
 }
