@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:lisiecka_aplikacje_mobilne/data/models/note_model.dart';
 
 class NoteDatabase {
   static final NoteDatabase instance = NoteDatabase._init();
@@ -9,7 +10,7 @@ class NoteDatabase {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('app.db');
+    _database = await _initDB('notes.db');
     return _database!;
   }
 
@@ -26,20 +27,20 @@ class NoteDatabase {
 
   Future<void> _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        password TEXT NOT NULL
-      )
-    ''');
-
-    await db.execute('''
       CREATE TABLE notes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         content TEXT NOT NULL,
-        userId INTEGER NOT NULL,
-        FOREIGN KEY (userId) REFERENCES users (id)
+        date TEXT NOT NULL,
+        userId INTEGER NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        password TEXT NOT NULL
       )
     ''');
   }
@@ -60,24 +61,32 @@ class NoteDatabase {
     return await db.insert('users', {'username': username, 'password': password});
   }
 
-  Future<void> addNote(String title, String content, int userId) async {
+  Future<void> addNote(Note note) async {
     final db = await instance.database;
-    await db.insert('notes', {
-      'title': title,
-      'content': content,
-      'userId': userId,
-    });
+    await db.insert('notes', note.toMap());
   }
 
-  Future<List<Map<String, dynamic>>> getNotesForUser(int userId) async {
+  Future<List<Note>> getNotesForUser(int userId) async {
     final db = await instance.database;
-    return await db.query(
+    final result = await db.query(
       'notes',
       where: 'userId = ?',
       whereArgs: [userId],
       orderBy: 'id DESC',
     );
+    return result.map((json) => Note.fromMap(json)).toList();
   }
+
+  Future<void> updateNote(Note note) async {
+    final db = await instance.database;
+    await db.update(
+      'notes',
+      note.toMap(),
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
+  }
+
   Future<void> initializeTestData() async {
     final db = await instance.database;
 
@@ -97,11 +106,13 @@ class NoteDatabase {
     await db.insert('notes', {
       'title': 'Sample Note 1',
       'content': 'This is the first sample note.',
+      'date': DateTime.now().toIso8601String(), // Dodano datę
       'userId': userId,
     });
     await db.insert('notes', {
       'title': 'Sample Note 2',
       'content': 'This is the second sample note.',
+      'date': DateTime.now().toIso8601String(), // Dodano datę
       'userId': userId,
     });
   }

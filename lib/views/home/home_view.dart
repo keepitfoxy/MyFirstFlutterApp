@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lisiecka_aplikacje_mobilne/data/note_database.dart';
+import 'package:lisiecka_aplikacje_mobilne/data/models/note_model.dart';
+import 'package:lisiecka_aplikacje_mobilne/utils/my_colors.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -10,25 +12,36 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  List<Map<String, dynamic>> notes = [];
+  List<Note> notes = [];
   int? userId;
 
   @override
   void initState() {
     super.initState();
-    _loadNotes();
+    _initializeHome();
+  }
+
+  Future<void> _initializeHome() async {
+    await _loadCurrentUser();
+    if (userId != null) {
+      await _loadNotes();
+    }
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId = prefs.getInt('userId');
+    });
   }
 
   Future<void> _loadNotes() async {
-    final prefs = await SharedPreferences.getInstance();
-    userId = prefs.getInt('userId'); // Pobieramy zalogowanego użytkownika
+    if (userId == null) return;
 
-    if (userId != null) {
-      final fetchedNotes = await NoteDatabase.instance.getNotesForUser(userId!);
-      setState(() {
-        notes = fetchedNotes;
-      });
-    }
+    final fetchedNotes = await NoteDatabase.instance.getNotesForUser(userId!);
+    setState(() {
+      notes = fetchedNotes;
+    });
   }
 
   Future<void> _addNote() async {
@@ -62,13 +75,16 @@ class _HomeViewState extends State<HomeView> {
             TextButton(
               onPressed: () async {
                 if (userId != null) {
-                  await NoteDatabase.instance.addNote(
-                    titleController.text,
-                    contentController.text,
-                    userId!,
+                  final newNote = Note(
+                    title: titleController.text,
+                    content: contentController.text,
+                    date: DateTime.now().toIso8601String(),
+                    userId: userId!,
                   );
+
+                  await NoteDatabase.instance.addNote(newNote);
                   Navigator.pop(context);
-                  _loadNotes(); // Odśwież listę notatek
+                  await _loadNotes();
                 }
               },
               child: const Text('Save'),
@@ -79,11 +95,66 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  Future<void> _editNote(Note note) async {
+    final titleController = TextEditingController(text: note.title);
+    final contentController = TextEditingController(text: note.content);
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Note'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: 'Title'),
+              ),
+              TextField(
+                controller: contentController,
+                decoration: const InputDecoration(labelText: 'Content'),
+                maxLines: 3,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final updatedNote = note.copyWith(
+                  title: titleController.text,
+                  content: contentController.text,
+                );
+
+                await NoteDatabase.instance.updateNote(updatedNote);
+                Navigator.pop(context);
+                await _loadNotes();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+    await prefs.remove('userId');
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Notes'),
+        backgroundColor: MyColors.purpleColor,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -98,25 +169,25 @@ class _HomeViewState extends State<HomeView> {
         itemBuilder: (context, index) {
           final note = notes[index];
           return ListTile(
-            title: Text(note['title'] as String), // Rzutowanie na String
-            subtitle: Text(note['content'] as String), // Rzutowanie na String
+            title: Text(note.title),
+            subtitle: Text(note.content),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () => _editNote(note),
+                ),
+              ],
+            ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addNote,
+        backgroundColor: MyColors.purpleColor,
         child: const Icon(Icons.add),
       ),
     );
   }
-
-  Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('isLoggedIn'); // Usuwamy status zalogowania
-    await prefs.remove('userId'); // Usuwamy ID użytkownika
-
-    // Przeniesienie użytkownika do ekranu logowania
-    Navigator.pushReplacementNamed(context, '/login');
-  }
-
 }
