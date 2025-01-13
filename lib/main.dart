@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lisiecka_aplikacje_mobilne/data/note_database.dart';
+import 'package:firebase_core/firebase_core.dart'; // Dodano Firebase Core
 import 'package:lisiecka_aplikacje_mobilne/views/home/home_view.dart';
 import 'package:lisiecka_aplikacje_mobilne/views/splashscreen/splash_screen.dart';
 import 'package:lisiecka_aplikacje_mobilne/views/login/login_view.dart';
@@ -7,9 +7,8 @@ import 'package:lisiecka_aplikacje_mobilne/views/login/login_view.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicjalizujemy bazę danych i dodajemy dane testowe
-  final db = NoteDatabase.instance;
-  await db.initializeTestData();
+  // Inicjalizujemy Firebase
+  await Firebase.initializeApp();
 
   runApp(const MyApp());
 }

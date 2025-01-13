@@ -2,6 +2,7 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -10,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.lisiecka_aplikacje_mobilne"
-        minSdk 21
+        minSdk 23
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -34,4 +35,10 @@ android {
 
 flutter {
     source "../.."
+}
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:33.7.0') // Dodaj BOM Firebase
+    implementation 'com.google.firebase:firebase-database' // Dodaj Firebase Database
+    implementation 'com.google.firebase:firebase-auth' // Dodaj Firebase Auth (opcjonalnie)
 }
