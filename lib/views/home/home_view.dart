@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lisiecka_aplikacje_mobilne/data/models/note_model.dart';
 import 'package:lisiecka_aplikacje_mobilne/utils/my_colors.dart';
-import 'package:lisiecka_aplikacje_mobilne/views/widgets/note_dialog.dart';
-import 'package:lisiecka_aplikacje_mobilne/views/widgets/note_list.dart';
+import 'package:lisiecka_aplikacje_mobilne/views/widgets/home_widgets/note_dialog.dart';
+import 'package:lisiecka_aplikacje_mobilne/views/widgets/home_widgets/note_list.dart';
 
 
 class HomeView extends StatefulWidget {
