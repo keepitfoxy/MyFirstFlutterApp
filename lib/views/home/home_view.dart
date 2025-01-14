@@ -110,18 +110,20 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _editNote(Note note, String newTitle, String newContent) async {
-    if (userId == null || note.id == null) return;
+    if (userId == null || note.id == null) return; // Sprawdź, czy użytkownik i klucz istnieją
 
+    // Tworzymy zaktualizowaną wersję notatki
     final updatedNote = note.copyWith(
       title: newTitle,
       content: newContent,
-      date: DateTime.now().toLocal().toString().split('.')[0],
+      date: DateTime.now().toLocal().toString().split('.')[0], // Aktualizacja daty
     );
 
+    // Odwołujemy się do odpowiedniej ścieżki w Firebase
     await _databaseReference
-        .child('user_${userId.toString()}')
-        .child(note.id! as String)
-        .update(updatedNote.toMap());
+        .child('user_${userId.toString()}') // Ścieżka użytkownika
+        .child(note.id.toString()) // Klucz notatki
+        .update(updatedNote.toMap()); // Aktualizacja danych
   }
 
   // DELETE: Usuwanie notatki
@@ -154,9 +156,10 @@ class _HomeViewState extends State<HomeView> {
 
     await _databaseReference
         .child('user_${userId.toString()}')
-        .child(note.id! as String)
+        .child(note.id.toString()) // Zamieniono na `.toString()` dla poprawności
         .remove();
   }
+
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
