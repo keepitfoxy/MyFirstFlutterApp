@@ -192,14 +192,23 @@ class _HomeViewState extends State<HomeView> {
       ),
       body: notes.isEmpty
           ? const Center(child: Text('No notes available. Add one!'))
-          : NoteList(
-        notes: notes,
-        onEdit: _editNoteDialog,
-        onDelete: _deleteNoteConfirmation,
+          : SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Column(
+            children: [
+              NoteList(
+                notes: notes,
+                onEdit: _editNoteDialog,
+                onDelete: _deleteNoteConfirmation,
+              ),
+            ],
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _addNoteDialog(context),
-        backgroundColor: MyColors.purpleColor,
+        backgroundColor: MyColors.lilacColor,
         child: const Icon(Icons.add),
       ),
     );
