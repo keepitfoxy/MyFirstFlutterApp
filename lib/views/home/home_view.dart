@@ -6,7 +6,6 @@ import 'package:lisiecka_aplikacje_mobilne/utils/my_colors.dart';
 import 'package:lisiecka_aplikacje_mobilne/views/widgets/home_widgets/note_dialog.dart';
 import 'package:lisiecka_aplikacje_mobilne/views/widgets/home_widgets/note_list.dart';
 
-
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
@@ -39,26 +38,31 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
-  // READ: Pobieranie notatek dla użytkownika
   Future<void> _loadNotes() async {
     if (userId == null) return;
 
     final userNotesRef = _databaseReference.child('user_${userId.toString()}');
     userNotesRef.onValue.listen((event) {
       final data = event.snapshot.value as Map<dynamic, dynamic>?;
+
       if (data != null) {
         setState(() {
           notes = data.entries.map((entry) {
-            final noteData = Map<String, dynamic>.from(entry.value as Map);
-            final noteKey = int.tryParse(entry.key.toString()) ?? entry.key.hashCode;
-            return Note.fromMap(noteData).copyWith(id: noteKey);
-          }).toList();
+            final noteData = entry.value as Map<dynamic, dynamic>?;
+            if (noteData != null) {
+              return Note.fromMap(Map<String, dynamic>.from(noteData));
+            }
+            return null;
+          }).whereType<Note>().toList();
+        });
+      } else {
+        setState(() {
+          notes = [];
         });
       }
     });
   }
 
-  // CREATE: Dodawanie nowej notatki
   Future<void> _addNoteDialog(BuildContext context) async {
     final titleController = TextEditingController();
     final contentController = TextEditingController();
@@ -80,17 +84,17 @@ class _HomeViewState extends State<HomeView> {
   Future<void> _addNote(String title, String content) async {
     if (userId == null) return;
 
+    final newNoteRef = _databaseReference.child('user_${userId.toString()}').push();
     final note = Note(
+      id: newNoteRef.key,
       title: title,
       content: content,
       date: DateTime.now().toLocal().toString().split('.')[0],
       userId: userId!,
     );
-
-    await _databaseReference.child('user_${userId.toString()}').push().set(note.toMap());
+    await newNoteRef.set(note.toMap());
   }
 
-  // UPDATE: Edycja istniejącej notatki
   Future<void> _editNoteDialog(BuildContext context, Note note) async {
     final titleController = TextEditingController(text: note.title);
     final contentController = TextEditingController(text: note.content);
@@ -110,23 +114,20 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _editNote(Note note, String newTitle, String newContent) async {
-    if (userId == null || note.id == null) return; // Sprawdź, czy użytkownik i klucz istnieją
+    if (userId == null || note.id == null) return;
 
-    // Tworzymy zaktualizowaną wersję notatki
     final updatedNote = note.copyWith(
       title: newTitle,
       content: newContent,
-      date: DateTime.now().toLocal().toString().split('.')[0], // Aktualizacja daty
+      date: DateTime.now().toLocal().toString().split('.')[0],
     );
 
-    // Odwołujemy się do odpowiedniej ścieżki w Firebase
     await _databaseReference
-        .child('user_${userId.toString()}') // Ścieżka użytkownika
-        .child(note.id.toString()) // Klucz notatki
-        .update(updatedNote.toMap()); // Aktualizacja danych
+        .child('user_${userId.toString()}')
+        .child(note.id!)
+        .set(updatedNote.toMap());
   }
 
-  // DELETE: Usuwanie notatki
   Future<void> _deleteNoteConfirmation(BuildContext context, Note note) async {
     final result = await showDialog(
       context: context,
@@ -156,10 +157,9 @@ class _HomeViewState extends State<HomeView> {
 
     await _databaseReference
         .child('user_${userId.toString()}')
-        .child(note.id.toString()) // Zamieniono na `.toString()` dla poprawności
+        .child(note.id!)
         .remove();
   }
-
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
@@ -172,11 +172,20 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notes'),
         backgroundColor: MyColors.purpleColor,
+        title: const Text(
+          'My Notes',
+          style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: _logout,
           ),
         ],

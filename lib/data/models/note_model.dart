@@ -1,10 +1,9 @@
 class Note {
-  final int? id;
+  final String? id; // Zmieniono typ na String?
   final String title;
   final String content;
   final String date;
-  final int userId; // userId jako int
-
+  final int userId;
 
   Note({
     this.id,
@@ -26,7 +25,7 @@ class Note {
 
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
-      id: map['id'] as int?,
+      id: map['id'] as String?,
       title: map['title'] as String,
       content: map['content'] as String,
       date: map['date'] as String,
@@ -35,11 +34,11 @@ class Note {
   }
 
   Note copyWith({
-    int? id,
+    String? id,
     String? title,
     String? content,
     String? date,
-    int? userId, // userId jako int
+    int? userId,
   }) {
     return Note(
       id: id ?? this.id,
