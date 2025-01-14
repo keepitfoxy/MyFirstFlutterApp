@@ -1,6 +1,6 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:lisiecka_aplikacje_mobilne/data/note_database.dart';
 import 'package:lisiecka_aplikacje_mobilne/data/models/note_model.dart';
 import 'package:lisiecka_aplikacje_mobilne/utils/my_colors.dart';
 
@@ -14,6 +14,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   List<Note> notes = [];
   int? userId;
+  final DatabaseReference _databaseReference = FirebaseDatabase.instance.ref('notes');
 
   @override
   void initState() {
@@ -31,18 +32,29 @@ class _HomeViewState extends State<HomeView> {
   Future<void> _loadCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      userId = prefs.getInt('userId'); // Pobranie ID użytkownika jako int
+      userId = prefs.getInt('userId'); // Poprawiono, by obsługiwać dynamic jako int
     });
   }
 
   Future<void> _loadNotes() async {
     if (userId == null) return;
 
-    final dbNotes = await NoteDatabase.instance.getNotesForUser(userId!);
-    setState(() {
-      notes = dbNotes;
+    final userNotesRef = _databaseReference.child('user_${userId.toString()}');
+    userNotesRef.onValue.listen((event) {
+      final data = event.snapshot.value as Map<dynamic, dynamic>?;
+      if (data != null) {
+        setState(() {
+          notes = data.entries.map((entry) {
+            final noteData = Map<String, dynamic>.from(entry.value as Map);
+            final noteKey = int.tryParse(entry.key.toString()) ?? entry.key.hashCode;
+            // Konwersja na int lub użycie hashCode jako unikalnego identyfikatora
+            return Note.fromMap(noteData).copyWith(id: noteKey);
+          }).toList();
+        });
+      }
     });
   }
+
 
   Future<void> _addNote(String title, String content) async {
     if (userId == null) return;
@@ -50,26 +62,35 @@ class _HomeViewState extends State<HomeView> {
     final note = Note(
       title: title,
       content: content,
-      date: DateTime.now().toLocal().toString().split('.')[0], // Data utworzenia w formacie "yyyy-MM-dd HH:mm:ss"
+      date: DateTime.now().toLocal().toString().split('.')[0], // Data w formacie "yyyy-MM-dd HH:mm:ss"
       userId: userId!,
     );
-    await NoteDatabase.instance.addNote(note);
-    await _loadNotes();
+
+    await _databaseReference.child('user_${userId.toString()}').push().set(note.toMap());
   }
 
   Future<void> _editNote(Note note, String newTitle, String newContent) async {
+    if (userId == null || note.id == null) return;
+
     final updatedNote = note.copyWith(
       title: newTitle,
       content: newContent,
-      date: DateTime.now().toLocal().toString().split('.')[0], // Aktualizacja daty modyfikacji
+      date: DateTime.now().toLocal().toString().split('.')[0],
     );
-    await NoteDatabase.instance.updateNote(updatedNote);
-    await _loadNotes();
+
+    await _databaseReference
+        .child('user_${userId.toString()}')
+        .child(note.id! as String)
+        .update(updatedNote.toMap());
   }
 
   Future<void> _deleteNote(Note note) async {
-    await NoteDatabase.instance.deleteNoteById(note.id!);
-    await _loadNotes();
+    if (userId == null || note.id == null) return;
+
+    await _databaseReference
+        .child('user_${userId.toString()}')
+        .child(note.id! as String)
+        .remove();
   }
 
   @override
@@ -102,7 +123,7 @@ class _HomeViewState extends State<HomeView> {
                   Text(note.content),
                   Text(
                     'Last Modified: ${note.date}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),

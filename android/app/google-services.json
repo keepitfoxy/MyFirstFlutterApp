@@ -1,5 +1,6 @@
 {
   "project_info": {
+    "firebase_url": "https://notes-app-cb109-default-rtdb.europe-west1.firebasedatabase.app/",
     "project_number": "374522352195",
     "project_id": "notes-app-cb109",
     "storage_bucket": "notes-app-cb109.firebasestorage.app"

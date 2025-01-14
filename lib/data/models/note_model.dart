@@ -5,6 +5,7 @@ class Note {
   final String date;
   final int userId; // userId jako int
 
+
   Note({
     this.id,
     required this.title,
