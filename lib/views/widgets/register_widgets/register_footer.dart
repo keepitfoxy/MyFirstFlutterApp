@@ -8,23 +8,24 @@ class RegisterFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.bottomCenter,
+      alignment: Alignment.bottomCenter, // ustawienie wyrównania u dołu
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.only(bottom: 20), // odstęp od dolnej krawędzi
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center, // wyrównanie wiersza na środku
           children: [
-            const Text('Already have an account?'),
+            const Text('Already have an account?'), // wyświetlenie tekstu
             TextButton(
+              // przycisk przechodzący do widoku logowania
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginView()),
+                  MaterialPageRoute(builder: (context) => const LoginView()), // nawigacja do ekranu logowania
                 );
               },
               child: Text(
-                'Sign In',
-                style: TextStyle(color: MyColors.purpleColor),
+                'Sign In', // tekst na przycisku
+                style: TextStyle(color: MyColors.purpleColor), // styl tekstu
               ),
             ),
           ],

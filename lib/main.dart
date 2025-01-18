@@ -7,14 +7,14 @@ import 'package:lisiecka_aplikacje_mobilne/views/splashscreen/splash_screen.dart
 import 'package:lisiecka_aplikacje_mobilne/views/login/login_view.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized(); // zapewnienie prawidłowej inicjalizacji przed uruchomieniem aplikacji
 
-  // Inicjalizujemy Firebase
-  await Firebase.initializeApp();
-  await testFirebaseConnection();
-  await NoteDatabase.instance.initializeTestData();
+  // inicjalizowanie Firebase
+  await Firebase.initializeApp(); // konfiguracja Firebase w aplikacji
+  await testFirebaseConnection(); // test połączenia z Firebase
+  await NoteDatabase.instance.initializeTestData(); // inicjalizacja danych testowych w bazie danych SQLite
 
-  runApp(const MyApp());
+  runApp(const MyApp()); // uruchomienie aplikacji
 }
 
 class MyApp extends StatelessWidget {
@@ -23,28 +23,28 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'My First Flutter App',
+      debugShowCheckedModeBanner: false, // ukrycie bannera trybu debugowania
+      title: 'My First Flutter App', // tytuł aplikacji
       theme: ThemeData(
-        primarySwatch: Colors.purple,
+        primarySwatch: Colors.purple, // główny kolor aplikacji
       ),
-      initialRoute: '/',
+      initialRoute: '/', // początkowa trasa aplikacji
       routes: {
-        '/': (context) => const SplashScreen(), // SplashScreen
-        '/login': (context) => const LoginView(), // Ekran logowania
-        '/home': (context) => const HomeView(), // Widok główny
+        '/': (context) => const SplashScreen(), // ekran startowy (splash screen)
+        '/login': (context) => const LoginView(), // ekran logowania
+        '/home': (context) => const HomeView(), // główny ekran aplikacji
       },
     );
   }
 }
 
-// test Firebase
+// testowanie połączenia z Firebase
 Future<void> testFirebaseConnection() async {
-  final DatabaseReference dbRef = FirebaseDatabase.instance.ref('test');
+  final DatabaseReference dbRef = FirebaseDatabase.instance.ref('test'); // odniesienie do węzła "test" w Firebase
   try {
-    await dbRef.set({'message': 'Test successful!'});
-    print('Firebase connection works!');
+    await dbRef.set({'message': 'Test successful!'}); // zapis testowej wiadomości w bazie danych Firebase
+    print('Firebase connection works!'); // informacja o poprawnym połączeniu
   } catch (e) {
-    print('Error connecting to Firebase: $e');
+    print('Error connecting to Firebase: $e'); // informacja o błędzie podczas połączenia
   }
 }

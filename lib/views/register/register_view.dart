@@ -9,46 +9,46 @@ class RegisterView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return SafeArea( // zabezpieczenie przed obszarami ekranu, które nie są bezpieczne
       child: Scaffold(
-        body: Stack(
+        body: Stack( // umożliwienie nakładania na siebie elementów
           children: [
-            const RegisterBackground(),
+            const RegisterBackground(), // tło ekranu rejestracji
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20), // odstępy po bokach
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start, // wyrównanie elementów do lewej
                 children: [
-                  const SizedBox(height: 59),
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                  const SizedBox(height: 59), // odstęp od góry
+                  GestureDetector( // umożliwienie powrotu do poprzedniego ekranu
+                    onTap: () => Navigator.pop(context), // nawigacja wstecz
                     child: Row(
                       children: [
-                        Icon(Icons.arrow_back_ios, color: MyColors.purpleColor, size: 15),
+                        Icon(Icons.arrow_back_ios, color: MyColors.purpleColor, size: 15), // ikona powrotu
                         Text(
-                          'Back',
+                          'Back', // tekst przycisku powrotu
                           style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: MyColors.purpleColor,
+                            fontSize: 12, // wielkość tekstu
+                            fontWeight: FontWeight.w500, // grubość czcionki
+                            color: MyColors.purpleColor, // kolor tekstu
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 101),
+                  const SizedBox(height: 101), // odstęp między przyciskiem powrotu a tytułem
                   Text(
-                    'Sign Up',
+                    'Sign Up', // tytuł ekranu
                     style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w700,
-                      color: MyColors.purpleColor,
+                      fontSize: 30, // wielkość tekstu
+                      fontWeight: FontWeight.w700, // grubość czcionki
+                      color: MyColors.purpleColor, // kolor tekstu
                     ),
                   ),
-                  const SizedBox(height: 46),
-                  const RegisterForm(),
-                  const Spacer(),
-                  const RegisterFooter(),
+                  const SizedBox(height: 46), // odstęp między tytułem a formularzem
+                  const RegisterForm(), // formularz rejestracji
+                  const Spacer(), // wypełnienie wolnej przestrzeni
+                  const RegisterFooter(), // stopka ekranu rejestracji
                 ],
               ),
             ),

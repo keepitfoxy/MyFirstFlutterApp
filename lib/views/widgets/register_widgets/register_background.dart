@@ -9,26 +9,28 @@ class RegisterBackground extends StatelessWidget {
     return Stack(
       children: [
         Positioned(
+          // dodanie okręgu w prawym górnym rogu ekranu
           top: -70,
           right: -5,
           child: Container(
-            width: 128,
-            height: 128,
+            width: 128, // szerokość okręgu
+            height: 128, // wysokość okręgu
             decoration: BoxDecoration(
-              color: MyColors.purpleColor.withOpacity(1),
-              shape: BoxShape.circle,
+              color: MyColors.purpleColor.withOpacity(1), // kolor okręgu
+              shape: BoxShape.circle, // kształt okręgu
             ),
           ),
         ),
         Positioned(
+          // dodanie większego okręgu za pierwszym
           top: -50,
           right: -80,
           child: Container(
-            width: 142,
-            height: 142,
+            width: 142, // szerokość okręgu
+            height: 142, // wysokość okręgu
             decoration: BoxDecoration(
-              color: MyColors.lilacColor.withOpacity(1),
-              shape: BoxShape.circle,
+              color: MyColors.lilacColor.withOpacity(1), // kolor okręgu
+              shape: BoxShape.circle, // kształt okręgu
             ),
           ),
         ),

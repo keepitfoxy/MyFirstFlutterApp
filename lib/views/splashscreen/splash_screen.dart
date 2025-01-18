@@ -15,24 +15,24 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navigateBasedOnLoginStatus();
+    _navigateBasedOnLoginStatus(); // rozpoczęcie nawigacji na podstawie statusu logowania
   }
 
   Future<void> _navigateBasedOnLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    final prefs = await SharedPreferences.getInstance(); // pobranie preferencji użytkownika
+    final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false; // sprawdzenie, czy użytkownik jest zalogowany
 
-    // Nawiguj do odpowiedniego ekranu
+    // nawigacja do odpowiedniego ekranu po opóźnieniu
     Future.delayed(const Duration(seconds: 2), () {
       if (isLoggedIn) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeView()),
+          MaterialPageRoute(builder: (context) => const HomeView()), // przejście do widoku głównego
         );
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginView()),
+          MaterialPageRoute(builder: (context) => const LoginView()), // przejście do widoku logowania
         );
       }
     });
@@ -41,14 +41,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyColors.whiteColor,
-      body: Stack(
+      backgroundColor: MyColors.whiteColor, // ustawienie białego tła
+      body: Stack( // użycie stosu do nakładania elementów
         children: [
-          // Tło
-          _buildBackground(),
+          _buildBackground(), // dodanie tła
           Center(
             child: Image.asset(
-              'assets/images/logo_bigger.png',
+              'assets/images/logo_bigger.png', // logo aplikacji
               width: 250,
               height: 250,
             ),
@@ -59,27 +58,27 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Widget _buildBackground() {
-    return Stack(
+    return Stack( // stos do umieszczania kół w tle
       children: [
-        Positioned(
+        Positioned( // pozycjonowanie pierwszego koła
           top: -150,
           left: -70,
-          child: _buildCircle(MyColors.lilacColor, 300),
+          child: _buildCircle(MyColors.lilacColor, 300), // lilacowe koło
         ),
-        Positioned(
+        Positioned( // pozycjonowanie drugiego koła
           top: -250,
           right: -130,
-          child: _buildCircle(MyColors.purpleColor, 350),
+          child: _buildCircle(MyColors.purpleColor, 350), // fioletowe koło
         ),
-        Positioned(
+        Positioned( // pozycjonowanie trzeciego koła
           bottom: -300,
           left: -50,
-          child: _buildCircle(MyColors.purpleColor, 400),
+          child: _buildCircle(MyColors.purpleColor, 400), // fioletowe koło
         ),
-        Positioned(
+        Positioned( // pozycjonowanie czwartego koła
           bottom: -150,
           right: -150,
-          child: _buildCircle(MyColors.lilacColor, 300),
+          child: _buildCircle(MyColors.lilacColor, 300), // lilacowe koło
         ),
       ],
     );
@@ -87,11 +86,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Widget _buildCircle(Color color, double size) {
     return Container(
-      width: size,
-      height: size,
+      width: size, // szerokość koła
+      height: size, // wysokość koła
       decoration: BoxDecoration(
-        color: color.withOpacity(1.0),
-        shape: BoxShape.circle,
+        color: color.withOpacity(1.0), // kolor z pełną widocznością
+        shape: BoxShape.circle, // kształt koła
       ),
     );
   }

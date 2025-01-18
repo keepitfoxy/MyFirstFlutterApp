@@ -9,22 +9,22 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return SafeArea( // zabezpieczenie przed obszarami ekranu, które nie są bezpieczne
       child: Scaffold(
-        body: SingleChildScrollView(
+        body: SingleChildScrollView( // umożliwienie przewijania zawartości ekranu
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20), // odstępy po bokach
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center, // wyśrodkowanie w poziomie
               children: [
-                const SizedBox(height: 62),
-                Image.asset(MyImages.logo, height: 129, width: 129),
-                const SizedBox(height: 21),
-                _signInText,
-                const SizedBox(height: 46),
-                const LoginForm(),
-                const SizedBox(height: 150),
-                const LoginFooter(),
+                const SizedBox(height: 62), // odstęp od góry
+                Image.asset(MyImages.logo, height: 129, width: 129), // wyświetlenie logo
+                const SizedBox(height: 21), // odstęp między logo a tekstem
+                _signInText, // tytuł ekranu
+                const SizedBox(height: 46), // odstęp między tytułem a formularzem
+                const LoginForm(), // formularz logowania
+                const SizedBox(height: 150), // odstęp między formularzem a stopką
+                const LoginFooter(), // stopka ekranu logowania
               ],
             ),
           ),
@@ -34,14 +34,14 @@ class LoginView extends StatelessWidget {
   }
 
   Widget get _signInText {
-    return Align(
-      alignment: Alignment.centerLeft,
+    return Align( // wyrównanie tekstu
+      alignment: Alignment.centerLeft, // wyrównanie tekstu do lewej
       child: Text(
-        'Sign in',
+        'Sign in', // tekst tytułu ekranu
         style: TextStyle(
-          fontSize: 30,
-          fontWeight: FontWeight.w700,
-          color: MyColors.purpleColor,
+          fontSize: 30, // wielkość tekstu
+          fontWeight: FontWeight.w700, // pogrubienie tekstu
+          color: MyColors.purpleColor, // kolor tekstu
         ),
       ),
     );
